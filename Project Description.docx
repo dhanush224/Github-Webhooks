@@ -1,0 +1,2 @@
+Packages being installed in our v env -- pip install fastapi uvicorn python-dotenv requests psycopg2-binary
+
