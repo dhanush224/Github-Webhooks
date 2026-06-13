@@ -1,6 +1,12 @@
 from fastapi import FastAPI, Request
+from dotenv import load_dotenv
+import requests
+import os
+
+load_dotenv()
 
 app = FastAPI()
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 @app.get("/")
 def health_check():
@@ -13,6 +19,23 @@ async def github_webhook(request: Request):
     action = payload.get("action")
     repo = payload.get("repository", {}).get("full_name")
     pr_number = payload.get("pull_request", {}).get("number")
+
+    repo = payload["repository"]["full_name"]
+    pr_number = payload["pull_request"]["number"]
+    url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/files"
+
+    headers = {
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github+json"
+    }
+
+    response = requests.get(url, headers=headers)
+
+    files = response.json()
+
+    for file in files:
+        print(file["filename"])
+    
 
     print("Action:", action)
     print("Repo:", repo)
